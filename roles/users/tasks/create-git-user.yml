@@ -1,0 +1,14 @@
+---
+- name: Create user `{{ git_user }}`
+  user:
+    name: "{{ git_user }}"
+    # `git-shell` *should* already be installed as part of `git`
+    shell: /usr/bin/git-shell
+
+- name: Install Authorized Keys for user `{{ git_user }}`
+  authorized_key:
+    user: "{{ git_user }}"
+    state: present
+    key: "{{ item }}"
+  with_items:
+    - "{{ git_user_authorized_keys }}"

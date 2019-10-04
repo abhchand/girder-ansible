@@ -1,0 +1,16 @@
+---
+- include: create-directories.yml
+  tags: ["app", "app:create-directories"]
+
+- include: create-git-remote.yml
+  tags: ["app", "app:create-git-remote"]
+- include: setup-git-hook.yml
+  tags: ["app", "app:setup-git-hook"]
+
+- include: clone-app.yml
+  tags: ["app", "app:clone-app"]
+- include: create-env-files.yml
+  tags: ["app", "app:create-env-files"]
+
+- include: create-nginx-conf.yml
+  tags: ["app", "app:create-nginx-conf"]

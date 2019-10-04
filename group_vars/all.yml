@@ -1,0 +1,7 @@
+---
+
+app_name: girder
+app_domain: girder.co
+
+deploy_user: deploy
+git_user: git

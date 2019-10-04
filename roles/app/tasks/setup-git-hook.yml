@@ -1,0 +1,26 @@
+---
+
+- name: Install post-receive githook
+  template:
+    src: post-receive.j2
+    dest: "{{ git_remote_path }}/hooks/post-receive"
+    owner: "{{ git_user }}"
+    mode: 'u=rwx,g=rx,o=rx'
+
+- name: Install build script
+  template:
+    src: build.sh.j2
+    dest: "{{ app_working_dir }}/build.sh"
+    owner: "{{ deploy_user }}"
+    mode: "u=rwx,g=rx,o=rx"
+
+# WARNING: Incorrect editing of sudoers file removes
+# sudo access. Edit carefully.
+# Also use `visudo` to validate the file below
+- name: Allow user `{{ git_user }}` to run build script
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^%{{ git_user}} ALL="
+    line: "%{{ git_user}} ALL=({{ deploy_user }}) NOPASSWD: {{ app_working_dir }}/build.sh"
+    validate: "/usr/sbin/visudo -cf %s"

@@ -1,0 +1,17 @@
+---
+
+- name: Clone bare repository to use as remote
+  git:
+    repo: "{{ app_git_url }}"
+    dest: "{{ git_remote_path }}"
+    version: "{{ git_branch }}"
+    bare: yes
+    update: no
+
+- name: Transfer bare repository ownership to user `{{ git_user }}`
+  file:
+    path: "{{ git_remote_path }}"
+    state: directory
+    owner: "{{ git_user }}"
+    group: "{{ git_user }}"
+    recurse: yes

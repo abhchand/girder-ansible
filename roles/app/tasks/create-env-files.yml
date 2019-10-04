@@ -1,0 +1,13 @@
+---
+
+- name: Create app env file
+  template:
+    src: .env.production.j2
+    dest: "{{ git_clone_path }}/.env.production"
+    owner: "{{ deploy_user }}"
+
+- name: Create docker compose env file
+  template:
+    src: .env.dockercompose.j2
+    dest: "{{ git_clone_path }}/.env.dockercompose"
+    owner: "{{ deploy_user }}"

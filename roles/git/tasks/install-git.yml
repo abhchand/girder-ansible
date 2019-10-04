@@ -1,0 +1,9 @@
+---
+- name: Update apt-get
+  apt:
+    update_cache: yes
+
+- name: Install git
+  apt:
+    name: git-core
+    state: present

@@ -1,0 +1,16 @@
+---
+
+- name: Clone app git repository
+  git:
+    repo: "{{ git_remote_path }}"
+    dest: "{{ git_clone_path }}"
+    version: "{{ git_branch }}"
+    update: no
+
+- name: Transferring ownership of git repo to user `{{ deploy_user }}`
+  file:
+    path: "{{ git_clone_path }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    recurse: yes

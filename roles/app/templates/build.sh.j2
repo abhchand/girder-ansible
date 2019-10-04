@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# #############################################################################
+# Deploys a new app version by rebuilding the image and containers
+# This file is managed by Ansible. Any changes may be overwritten.
+# #############################################################################
+
+function ensureSuccess {
+  if [ $? -ne 0 ]; then
+    echo "ERROR"
+    exit 1
+  fi
+}
+
+function printProgress {
+  RED='\033[1;33m'
+  NC='\033[0m'
+
+  echo -e "${RED}$1${NC}"
+}
+
+
+WEB_CONTAINER="{{ app_name }}_web"
+
+cd {{ git_clone_path }}
+git pull
+
+while read OLD_REV NEW_REV REFNAME
+do
+
+  branch=$(git rev-parse --symbolic --abbrev-ref $REFNAME)
+  if [ "{{ git_branch }}" = "$branch" ]; then
+
+    printProgress "Building ${OLD_REV}..${NEW_REV} ($REFNAME)"
+
+    if [ -z $(docker images -q $WEB_CONTAINER:latest) ]; then
+      printProgress "Renaming ${WEB_CONTAINER}:latest to ${WEB_CONTAINER}:${REFNAME}"
+      docker tag $WEB_CONTAINER:latest $WEB_CONTAINER:$REFNAME
+    fi
+
+    # Build new images
+    printProgress "Building latest image"
+    docker-compose build
+    ensureSuccess
+
+    # Teardown current running containers
+    printProgress "Stopping current containers"
+    docker-compose down
+    ensureSuccess
+
+    # Cleanup dangling images
+    printProgress "Cleanup dangling images"
+    docker rmi -f $(docker images -f "dangling=true" -q)
+
+    # Recreate containers
+    printProgress "Recreating containers"
+    docker-compose up --no-start
+    ensureSuccess
+
+    # Run DB tasks
+    printProgress "Running: db:create"
+    docker-compose run --rm web bundle exec rake db:create
+    ensureSuccess
+    printProgress "Running: db:migrate"
+    docker-compose run --rm web bundle exec rake db:migrate
+    ensureSuccess
+    printProgress "Running: assets:precompile"
+    docker-compose run --rm web bundle exec rake assets:precompile
+    ensureSuccess
+
+    # Start services
+    printProgress "Starting containers"
+    docker-compose start
+    ensureSuccess
+  fi
+done

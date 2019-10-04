@@ -1,0 +1,18 @@
+---
+
+- name: Add Nginx site config for `{{ app_domain }}`
+  template:
+    src: site.conf.j2
+    dest: /etc/nginx/sites-available/{{ app_domain }}.conf
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+  notify:
+    - Restart Nginx
+
+- name: Enable Nginx site config for `{{ app_domain }}`
+  file:
+    src: /etc/nginx/sites-available/{{ app_domain }}.conf
+    dest: /etc/nginx/sites-enabled/{{ app_domain }}.conf
+    state: link
+  notify:
+    - Restart Nginx

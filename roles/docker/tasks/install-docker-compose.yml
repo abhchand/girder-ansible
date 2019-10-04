@@ -1,0 +1,9 @@
+---
+
+- name: Install docker-compose
+  get_url:
+    # Latest releases found here: https://github.com/docker/compose/releases
+    url : https://github.com/docker/compose/releases/download/1.24.1/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}
+    dest: /usr/local/bin/docker-compose
+    # Mirror permissions of the `docker` executable installed via apt
+    mode: 'u=rwx,g=rx,o=rx'

@@ -1,0 +1,19 @@
+---
+
+- name: Update apt-get
+  apt:
+    update_cache: yes
+
+- name: Add Nginx Repository
+  apt_repository:
+    repo: 'ppa:nginx/stable'
+    state: present
+  register: ppastable
+
+- name: Install Nginx
+  apt:
+    pkg: nginx
+    state: present
+  when: ppastable is succeeded
+  notify:
+    - Start Nginx

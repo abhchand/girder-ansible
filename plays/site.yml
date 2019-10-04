@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: yes
+
+  pre_tasks:
+    # Python2 is required for ansible
+    - name: Install Python 3
+      raw: sudo apt-get -y install python3
+    # apt module prefers `apt` instead of `apt-get`
+    # or else it issues warnings
+    - name: Install aptitude
+      raw: sudo apt-get -y install aptitude
+
+  roles:
+    - users
+    - git
+    - nginx
+    - docker
+    - app

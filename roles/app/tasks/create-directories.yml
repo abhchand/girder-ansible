@@ -1,0 +1,27 @@
+---
+
+- name: Creating {{ app_name }} git clone path
+  file:
+    path: "{{ git_clone_path }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    recurse: yes
+
+- name: Creating {{ app_name }} working directory
+  file:
+    path: "{{ app_working_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    recurse: yes
+
+- name: Creating docker volume subidrectories
+  file:
+    path: "{{ app_working_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    recurse: yes
+  with_items:
+    - "{{ docker_volume_subdirs }}"

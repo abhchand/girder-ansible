@@ -1,0 +1,6 @@
+---
+
+- name: Disable Nginx Default Site
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent

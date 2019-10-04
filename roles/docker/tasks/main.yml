@@ -1,0 +1,7 @@
+---
+- include: install-docker.yml
+  tags: ["docker", "docker:install-docker"]
+- include: install-docker-compose.yml
+  tags: ["docker", "docker:install-docker-compose"]
+- include: configure-docker-users.yml
+  tags: ["docker", "docker:configure-docker-users"]

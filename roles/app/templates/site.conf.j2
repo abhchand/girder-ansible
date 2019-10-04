@@ -1,0 +1,30 @@
+# #############################################################################
+# This file is managed by Ansible. Any changes may be overwritten.
+# #############################################################################
+
+upstream app {
+  server unix:{{ app_working_dir }}/docker_volumes/web/tmp/sockets/puma.sock fail_timeout=0;
+}
+
+server {
+
+  listen              *:80;
+  server_name         localhost;
+  access_log          /var/log/nginx/my_app-access.log;
+
+  location / {
+    root {{ app_working_dir }}/docker_volumes/web/public;
+    try_files $uri @app;
+  }
+
+  location @app {
+    proxy_pass http://app;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+  }
+
+  error_page 500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
+}

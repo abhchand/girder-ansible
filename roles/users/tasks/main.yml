@@ -1,0 +1,7 @@
+---
+- include: create-deploy-user.yml
+  tags: ["users", "users:create-deploy-user"]
+- include: create-git-user.yml
+  tags: ["users", "users:create-git-user"]
+- include: setup-git-shell.yml
+  tags: ["users", "users:setup-git-shell"]
