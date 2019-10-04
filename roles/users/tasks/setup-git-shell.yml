@@ -9,6 +9,6 @@
 - name: Disable interactive login for user `{{ git_user }}`
   template:
     src: no-interactive-login.sh.j2
-    dest: /home/{{ git_user }}/git-shell-commands
+    dest: /home/{{ git_user }}/git-shell-commands/no-interactive-login
     owner: "{{ git_user }}"
     group: "{{ git_user }}"
