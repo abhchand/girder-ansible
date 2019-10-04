@@ -9,8 +9,8 @@ upstream app {
 server {
 
   listen              *:80;
-  server_name         localhost;
-  access_log          /var/log/nginx/my_app-access.log;
+  server_name         {{ app_domain }};
+  access_log          /var/log/nginx/{{ app_domain }}.log;
 
   location / {
     root {{ app_working_dir }}/docker_volumes/web/public;
