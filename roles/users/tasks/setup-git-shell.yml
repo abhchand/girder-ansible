@@ -12,3 +12,4 @@
     dest: /home/{{ git_user }}/git-shell-commands/no-interactive-login
     owner: "{{ git_user }}"
     group: "{{ git_user }}"
+    mode: 'u=rwx,g=rx,o=r'
