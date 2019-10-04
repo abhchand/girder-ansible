@@ -23,7 +23,12 @@ function printProgress {
 WEB_CONTAINER="{{ app_name }}_web"
 
 cd {{ git_clone_path }}
-git pull
+
+# Reset to latest commit on branch
+# This is effectively same as `git pull` but it
+# correctly handles rollbacks via forced updates
+git fetch origin
+git reset --hard origin/{{ git_branch }}
 
 while read OLD_REV NEW_REV REFNAME
 do
