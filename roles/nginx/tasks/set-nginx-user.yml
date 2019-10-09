@@ -1,0 +1,9 @@
+---
+
+- name: Set nginx to run as `{{ nginx_user }}` user
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    state: present
+    regexp: "^user"
+    line: "user {{ nginx_user }};"
+    validate: "nginx -t -c %s"

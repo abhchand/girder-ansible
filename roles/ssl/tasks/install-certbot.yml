@@ -1,0 +1,18 @@
+---
+
+- name: Fetch and install certbot
+  get_url:
+    url : https://dl.eff.org/certbot-auto
+    dest: "{{ certbot_scripts_dir }}/certbot-auto"
+    owner: "{{ ssl_management_user }}"
+    group: "{{ ssl_management_user }}"
+    mode: 'u=rwx,g=rx,o=rx'
+
+- name: Allow `{{ ssl_management_user }}` user to write to letsencrypt log directory
+  file:
+    path: "{{ letsencrypt_log_dir }}"
+    state: directory
+    owner: "{{ ssl_management_user }}"
+    group: "{{ ssl_management_user }}"
+    recurse: yes
+    mode: 'u=rwx,g=,o='

@@ -5,3 +5,5 @@ app_domain: girder.xyz
 
 deploy_user: deploy
 git_user: git
+nginx_user: www-data
+ssl_management_user: root

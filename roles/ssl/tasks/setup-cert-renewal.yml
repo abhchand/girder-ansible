@@ -1,0 +1,23 @@
+---
+- name: Create Certbot renew script
+  template:
+    src: certbot-renew.sh.j2
+    dest: "{{ certbot_scripts_dir }}/certbot-renew"
+    owner: "{{ ssl_management_user }}"
+    group: "{{ ssl_management_user }}"
+    mode: 'u=rwx,g=rx,o=r'
+
+- name: Setup Crontab Environment ($SHELL)
+  cron:
+    user: "{{ ssl_management_user }}"
+    name: SHELL
+    env: yes
+    value: /bin/bash
+
+- name: Configure Crontab to run Certbot renew script
+  cron:
+    user: "{{ ssl_management_user }}"
+    name: Certbot Renew Script
+    minute: "0"
+    hour: "0,12"
+    job: "{{ certbot_scripts_dir }}/certbot-renew"

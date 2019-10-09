@@ -1,0 +1,8 @@
+---
+
+- include: install-certbot.yml
+  tags: ["ssl", "ssl:install-certbot"]
+- include: fetch-initial-cert.yml
+  tags: ["ssl", "ssl:fetch-initial-cert"]
+- include: setup-cert-renewal.yml
+  tags: ["ssl", "ssl:setup-cert-renewal"]

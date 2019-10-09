@@ -8,7 +8,7 @@ upstream app {
 
 server {
 
-  listen              *:80;
+  listen              443 ssl;
   server_name         {{ app_domain }};
   access_log          /var/log/nginx/{{ app_domain }}.log;
 
@@ -24,7 +24,24 @@ server {
     proxy_redirect off;
   }
 
+  # SSL
+  ssl_certificate /etc/letsencrypt/live/{{ app_domain }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ app_domain }}/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+  # END SSL
+
   error_page 500 502 503 504 /500.html;
   client_max_body_size 4G;
   keepalive_timeout 10;
+}
+
+server {
+  if ($host = {{ app_domain }}) {
+      return 301 https://$host$request_uri;
+  }
+
+  listen 80;
+  server_name {{ app_domain }};
+  return 404;
 }

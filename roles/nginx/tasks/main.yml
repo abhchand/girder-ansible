@@ -1,5 +1,7 @@
 ---
 - include: install-nginx.yml
-  tags: ["users", "users:install-nginx"]
+  tags: ["nginx", "nginx:install-nginx"]
 - include: disable-default-site.yml
-  tags: ["users", "users:disable-default-site"]
+  tags: ["nginx", "nginx:disable-default-site"]
+- include: set-nginx-user.yml
+  tags: ["nginx", "nginx:set-nginx-user"]
