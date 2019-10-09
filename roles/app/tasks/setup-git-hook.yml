@@ -10,7 +10,7 @@
 - name: Install build script
   template:
     src: build.sh.j2
-    dest: "{{ app_working_dir }}/build.sh"
+    dest: "{{ app_webroot }}/build.sh"
     owner: "{{ deploy_user }}"
     mode: "u=rwx,g=rx,o=rx"
 
@@ -22,5 +22,5 @@
     path: /etc/sudoers
     state: present
     regexp: "^%{{ git_user}} ALL="
-    line: "%{{ git_user}} ALL=({{ deploy_user }}) NOPASSWD: {{ app_working_dir }}/build.sh"
+    line: "%{{ git_user}} ALL=({{ deploy_user }}) NOPASSWD: {{ app_webroot }}/build.sh"
     validate: "/usr/sbin/visudo -cf %s"

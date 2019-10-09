@@ -7,7 +7,7 @@ git_remote_path: /opt/git/girder.git
 
 git_branch: master
 
-app_working_dir: /var/www/{{ app_domain }}
+app_webroot: /var/www/{{ app_domain }}
 docker_volume_subdirs:
   - docker_volumes/db/data
   - docker_volumes/web/tmp

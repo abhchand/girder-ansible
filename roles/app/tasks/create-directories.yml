@@ -10,7 +10,7 @@
 
 - name: Creating {{ app_name }} working directory
   file:
-    path: "{{ app_working_dir }}"
+    path: "{{ app_webroot }}"
     state: directory
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
@@ -18,7 +18,7 @@
 
 - name: Creating docker volume subidrectories
   file:
-    path: "{{ app_working_dir }}/{{ item }}"
+    path: "{{ app_webroot }}/{{ item }}"
     state: directory
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"

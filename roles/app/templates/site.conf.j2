@@ -3,7 +3,7 @@
 # #############################################################################
 
 upstream app {
-  server unix:{{ app_working_dir }}/docker_volumes/web/tmp/sockets/puma.sock fail_timeout=0;
+  server unix:{{ app_webroot }}/docker_volumes/web/tmp/sockets/puma.sock fail_timeout=0;
 }
 
 server {
@@ -13,7 +13,7 @@ server {
   access_log          /var/log/nginx/{{ app_domain }}.log;
 
   location / {
-    root {{ app_working_dir }}/docker_volumes/web/public;
+    root {{ app_webroot }}/docker_volumes/web/public;
     try_files $uri @app;
   }
 
