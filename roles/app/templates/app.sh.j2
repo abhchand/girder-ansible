@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# #############################################################################
+# Deploys a new app version by rebuilding the image and containers
+# This file is managed by Ansible. Any changes may be overwritten.
+# #############################################################################
+
+function printout {
+  YELLOW='\033[1;33m'
+  NC='\033[0m'
+
+  echo -e "=> ${YELLOW}$1${NC}"
+}
+
+function ensureSuccess {
+  if [ $? -ne 0 ]; then
+    echo "ERROR"
+    exit 1
+  fi
+}
+
+function startApp {
+  docker-compose -f {{ git_clone_path }}/docker-compose.yml start
+  ensureSuccess
+}
+
+function stopApp {
+  docker-compose -f {{ git_clone_path }}/docker-compose.yml stop
+  ensureSuccess
+}
+
+case $1 in
+  "start")
+    printout "Starting {{ app_name }}"
+    startApp
+  ;;
+
+  "stop")
+    printout "Stopping {{ app_name }}"
+    stopApp
+  ;;
+
+  "restart")
+    printout "Restarting {{ app_name }}"
+    stopApp
+    startApp
+  ;;
+
+  *)
+esac

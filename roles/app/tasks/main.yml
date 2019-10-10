@@ -6,6 +6,8 @@
   tags: ["app", "app:create-git-remote"]
 - include: setup-git-hook.yml
   tags: ["app", "app:setup-git-hook"]
+- include: create-app-control-script.yml
+  tags: ["app", "app:create-app-control-script"]
 
 - include: clone-app.yml
   tags: ["app", "app:clone-app"]

@@ -1,0 +1,8 @@
+---
+
+- name: Create app control script
+  template:
+    src: app.sh.j2
+    dest: "{{ app_webroot }}/{{ app_name }}.sh"
+    owner: "{{ deploy_user }}"
+    mode: "u=rwx,g=rx,o=rx"
