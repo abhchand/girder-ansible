@@ -79,3 +79,8 @@ ensureSuccess
 printout "Starting containers"
 docker-compose start
 ensureSuccess
+
+# Check size
+IMAGE_COUNT=$(docker images | grep $WEB_CONTAINER | wc -l)
+printout "There are ${IMAGE_COUNT} ${WEB_CONTAINER} images."
+printout "Remember to periodically clean these up (e.g. docker image prune -a --filter \"until=240h\")"
