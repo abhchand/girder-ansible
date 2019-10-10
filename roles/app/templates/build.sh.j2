@@ -12,11 +12,11 @@ function ensureSuccess {
   fi
 }
 
-function printProgress {
+function printout {
   RED='\033[1;33m'
   NC='\033[0m'
 
-  echo -e "${RED}$1${NC}"
+  echo -e "=> ${RED}$1${NC}"
 }
 
 WEB_CONTAINER="{{ app_name }}_web"
@@ -32,50 +32,50 @@ cd {{ git_clone_path }}
 git fetch origin
 git reset --hard origin/{{ git_branch }}
 
-printProgress "Building ${OLD_REV}..${NEW_REV} ($REFNAME)"
+printout "Building ${OLD_REV}..${NEW_REV} ($REFNAME)"
 
 if [[ -n $(docker images -q $WEB_CONTAINER:${NEW_REV}) ]]; then
-  printProgress "Image build ${WEB_CONTAINER}:${NEW_REV} already exists"
+  printout "Image build ${WEB_CONTAINER}:${NEW_REV} already exists"
 fi;
 
 # Build images
-printProgress "Building images"
+printout "Building images"
 docker-compose build
 ensureSuccess
 
 # Tag docker images with git SHA version
 if [[ -z $(docker images -q $WEB_CONTAINER:${NEW_REV}) ]]; then
-  printProgress "Tagging image build as ${WEB_CONTAINER}:${NEW_REV}"
+  printout "Tagging image build as ${WEB_CONTAINER}:${NEW_REV}"
   docker tag $WEB_CONTAINER:latest $WEB_CONTAINER:$NEW_REV
 fi;
 
 # Teardown current running containers
-printProgress "Stopping current containers"
+printout "Stopping current containers"
 docker-compose down
 ensureSuccess
 
 # Cleanup dangling images
-printProgress "Cleanup dangling images"
+printout "Cleanup dangling images"
 DANGLING_IMAGES=$(docker images -f "dangling=true" -q)
 [[ -n $DANGLING_IMAGES ]] && docker rmi -f ${DANGLING_IMAGES}
 
 # Recreate containers
-printProgress "Recreating containers"
+printout "Recreating containers"
 docker-compose up --no-start
 ensureSuccess
 
 # Run DB tasks
-printProgress "Running: db:create"
+printout "Running: db:create"
 docker-compose run --rm web bundle exec rake db:create
 ensureSuccess
-printProgress "Running: db:migrate"
+printout "Running: db:migrate"
 docker-compose run --rm web bundle exec rake db:migrate
 ensureSuccess
-printProgress "Running: assets:precompile"
+printout "Running: assets:precompile"
 docker-compose run --rm web bundle exec rake assets:precompile
 ensureSuccess
 
 # Start services
-printProgress "Starting containers"
+printout "Starting containers"
 docker-compose start
 ensureSuccess
