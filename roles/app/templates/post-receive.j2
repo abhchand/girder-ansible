@@ -5,4 +5,12 @@
 # This file is managed by Ansible. Any changes may be overwritten.
 # #############################################################################
 
-sudo -u {{ deploy_user }} {{ app_webroot }}/build.sh
+while read OLD_REV NEW_REV REFNAME
+do
+  branch=$(git rev-parse --symbolic --abbrev-ref $REFNAME)
+  if [ "{{ git_branch }}" = "$branch" ]; then
+
+    sudo -u {{ deploy_user }} {{ app_webroot }}/build.sh $OLD_REV $NEW_REV $REFNAME
+
+  fi
+done

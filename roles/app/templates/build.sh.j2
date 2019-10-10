@@ -19,8 +19,10 @@ function printProgress {
   echo -e "${RED}$1${NC}"
 }
 
-
 WEB_CONTAINER="{{ app_name }}_web"
+OLD_REV=${1:0:7}
+NEW_REV=${2:0:7}
+REFNAME=$3
 
 cd {{ git_clone_path }}
 
@@ -30,52 +32,50 @@ cd {{ git_clone_path }}
 git fetch origin
 git reset --hard origin/{{ git_branch }}
 
-while read OLD_REV NEW_REV REFNAME
-do
+printProgress "Building ${OLD_REV}..${NEW_REV} ($REFNAME)"
 
-  branch=$(git rev-parse --symbolic --abbrev-ref $REFNAME)
-  if [ "{{ git_branch }}" = "$branch" ]; then
+if [[ -n $(docker images -q $WEB_CONTAINER:${NEW_REV}) ]]; then
+  printProgress "Image build ${WEB_CONTAINER}:${NEW_REV} already exists"
+fi;
 
-    printProgress "Building ${OLD_REV}..${NEW_REV} ($REFNAME)"
+# Build images
+printProgress "Building images"
+docker-compose build
+ensureSuccess
 
-    if [ -z $(docker images -q $WEB_CONTAINER:latest) ]; then
-      printProgress "Renaming ${WEB_CONTAINER}:latest to ${WEB_CONTAINER}:${REFNAME}"
-      docker tag $WEB_CONTAINER:latest $WEB_CONTAINER:$REFNAME
-    fi
+# Tag docker images with git SHA version
+if [[ -z $(docker images -q $WEB_CONTAINER:${NEW_REV}) ]]; then
+  printProgress "Tagging image build as ${WEB_CONTAINER}:${NEW_REV}"
+  docker tag $WEB_CONTAINER:latest $WEB_CONTAINER:$NEW_REV
+fi;
 
-    # Build new images
-    printProgress "Building latest image"
-    docker-compose build
-    ensureSuccess
+# Teardown current running containers
+printProgress "Stopping current containers"
+docker-compose down
+ensureSuccess
 
-    # Teardown current running containers
-    printProgress "Stopping current containers"
-    docker-compose down
-    ensureSuccess
+# Cleanup dangling images
+printProgress "Cleanup dangling images"
+DANGLING_IMAGES=$(docker images -f "dangling=true" -q)
+[[ -n $DANGLING_IMAGES ]] && docker rmi -f ${DANGLING_IMAGES}
 
-    # Cleanup dangling images
-    printProgress "Cleanup dangling images"
-    docker rmi -f $(docker images -f "dangling=true" -q)
+# Recreate containers
+printProgress "Recreating containers"
+docker-compose up --no-start
+ensureSuccess
 
-    # Recreate containers
-    printProgress "Recreating containers"
-    docker-compose up --no-start
-    ensureSuccess
+# Run DB tasks
+printProgress "Running: db:create"
+docker-compose run --rm web bundle exec rake db:create
+ensureSuccess
+printProgress "Running: db:migrate"
+docker-compose run --rm web bundle exec rake db:migrate
+ensureSuccess
+printProgress "Running: assets:precompile"
+docker-compose run --rm web bundle exec rake assets:precompile
+ensureSuccess
 
-    # Run DB tasks
-    printProgress "Running: db:create"
-    docker-compose run --rm web bundle exec rake db:create
-    ensureSuccess
-    printProgress "Running: db:migrate"
-    docker-compose run --rm web bundle exec rake db:migrate
-    ensureSuccess
-    printProgress "Running: assets:precompile"
-    docker-compose run --rm web bundle exec rake assets:precompile
-    ensureSuccess
-
-    # Start services
-    printProgress "Starting containers"
-    docker-compose start
-    ensureSuccess
-  fi
-done
+# Start services
+printProgress "Starting containers"
+docker-compose start
+ensureSuccess
