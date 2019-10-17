@@ -1,9 +1,4 @@
 ---
-- name: Check if SSL certs already exist
-  stat:
-    path: /etc/letsencrypt/live/{{ app_domain }}/privkey.pem
-  register: ssl_certs_exist
-
 - name: Create Certbot init script
   template:
     src: certbot-init.sh.j2
@@ -12,8 +7,16 @@
     group: "{{ ssl_management_user }}"
     mode: 'u=rwx,g=rx,o=r'
 
-- name: Run Certbot init script to fetch new certs
+- name: Run `certbot-init` to fetch new certs
+  # NOTE: Assumes `app` role runs as a dependency
+  # before this role, and that `ssl_certs_exist`
+  # was previously calculated as part of `app`
+  when: ssl_certs_exist == False
   command: "{{ certbot_scripts_dir }}/certbot-init"
-  when: ssl_certs_exist.stat.exists == False
-  notify:
-    - Restart Nginx
+  register: fetched_new_ssl_certs
+
+- name: Regenerate NGINX conf to configure with SSL
+  when: fetched_new_ssl_certs is succeeded
+  include_role:
+    name: app
+    tasks_from: create-nginx-conf

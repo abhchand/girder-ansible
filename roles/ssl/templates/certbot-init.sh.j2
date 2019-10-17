@@ -9,23 +9,6 @@ LOG="{{ letsencrypt_log_dir }}/init.log"
 # Log
 echo $(date)' | Getting new certs' >> $LOG
 
-# Comment out Nginx conf
-#
-# Need to comment out the `SSL` block lines. Fetching certs below with the
-# `--nginx` plugin runs the nginx conf validation, which will fail if it
-# refers to SSL certs that don't (yet) exist. The alternate is to leave this
-# out and let certbot manage the conf file automatically,
-
-# This approach of having an nginx conf file updated automatically isn't
-# inline with the "defined state" philosphy of ansible.
-#
-# So instead, we temporarily comment out these lines and then re-enable them
-# after. This is pretty hacky, but it's one-time so... ¯\_(ツ)_/¯
-echo $(date)' | Disabling SSL in nginx conf' >> $LOG
-sed -i 's/443 ssl;/443;/' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-sed -i 's/ssl_/# ssl_/g' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-sed -i 's/include/# include/g' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-
 # Run
 {{ certbot_scripts_dir }}/certbot-auto certonly \
   -n \
@@ -35,14 +18,3 @@ sed -i 's/include/# include/g' /etc/nginx/sites-available/{{ app_domain }}.conf 
   -d {{ app_domain }} \
   --email {{ letsencrypt_email }} \
   {% if use_letsencrypt_staging == True %}--test-cert --dry-run{% endif %} >> $LOG 2>&1
-
-RESULT=$?
-
-# Uncomment Nginx conf
-# We do this regardless of whether the above fails
-echo $(date)' | Re-enabling SSL in nginx conf' >> $LOG
-sed -i 's/443;/443 ssl;/' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-sed -i 's/# ssl_/ssl_/g' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-sed -i 's/# include/include/g' /etc/nginx/sites-available/{{ app_domain }}.conf >> $LOG 2>&1
-
-exit $RESULT

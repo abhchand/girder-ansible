@@ -1,6 +1,8 @@
 ---
 
 certbot_scripts_dir: /usr/local/bin
+
+letsencrypt_dir: /etc/letsencrypt
 letsencrypt_log_dir: /var/log/letsencrypt
 letsencrypt_email: !vault |
   $ANSIBLE_VAULT;1.1;AES256

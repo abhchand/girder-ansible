@@ -1,4 +1,16 @@
 ---
+- name: Load SSL vars
+  include_vars: ../../ssl/vars/main.yml
+
+- name: Check whether SSL certs exist
+  stat:
+    path: "{{ letsencrypt_dir }}/live/{{ app_domain }}/privkey.pem"
+  register: ssl_privkey
+
+# `ssl_certs_exist` is used in generating the Nginx conf below
+- name: Set `ssl_certs_exist` based on result
+  set_fact:
+    ssl_certs_exist: "{{ ssl_privkey.stat.exists }}"
 
 - name: Add Nginx site config for `{{ app_domain }}`
   template:
