@@ -6,7 +6,7 @@
   gather_facts: yes
 
   pre_tasks:
-    # Python2 is required for ansible
+    # Python is required for ansible
     - name: Install Python 3
       raw: sudo apt-get -y install python3
     # apt module prefers `apt` instead of `apt-get`
