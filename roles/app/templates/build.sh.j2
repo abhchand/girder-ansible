@@ -71,8 +71,14 @@ ensureSuccess
 printout "Running: db:migrate"
 docker-compose run --rm web bundle exec rake db:migrate
 ensureSuccess
+# By default the `webpacker` enhances assets:precompile to run webpack after it's done
+# Override that behavior and run them separately. Running them together caused constant
+# failures - not sure if it's because of limited memory or another unknown issue
 printout "Running: assets:precompile"
-docker-compose run --rm web bundle exec rake assets:precompile
+docker-compose run --rm web env WEBPACKER_PRECOMPILE=false bundle exec rake assets:precompile
+ensureSuccess
+printout "Running: ./bin/webpack"
+docker-compose run --rm web ./bin/webpack
 ensureSuccess
 
 # Start services
